@@ -1,0 +1,13 @@
+body {
+  font-family: Arial, "Microsoft YaHei", sans-serif;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}

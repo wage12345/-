@@ -3,89 +3,296 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>学生列表 - 学生信息管理系统</title>
+  <title>学生总览 - 学生信息管理系统</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="/css/style.css" rel="stylesheet" />
 </head>
-<body class="bg-light">
-  <nav class="navbar navbar-expand-lg bg-white border-bottom">
-    <div class="container">
-      <span class="navbar-brand">学生信息管理系统</span>
-      <div class="d-flex align-items-center gap-3">
-        <span class="text-muted">当前用户：<%= user.username %></span>
-        <form action="/logout" method="POST">
-          <button class="btn btn-outline-secondary btn-sm" type="submit">退出登录</button>
-        </form>
+<body class="app-page">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      activePage: 'students',
+      user: user,
+      sidebarStats: {
+        studentCount: stats.total,
+        classCount: stats.classCount,
+        capacity: classList.reduce(function(total, item) {
+          return total + Number(item.student_capacity || 0);
+        }, 0)
+      }
+    }) %>
+
+    <div class="app-content">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <p class="eyebrow mb-1">Student Hub</p>
+        <h1 class="page-title mb-0">学生信息总览</h1>
       </div>
     </div>
-  </nav>
+  </header>
 
-  <main class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="mb-0">学生信息列表</h4>
-      <a href="/students/new" class="btn btn-primary">新增学生</a>
-    </div>
-
-    <form class="row g-2 mb-3" method="GET" action="/students">
-      <div class="col-md-10">
-        <input
-          type="text"
-          name="keyword"
-          class="form-control"
-          placeholder="请输入学号、姓名或班级"
-          value="<%= keyword %>"
-        />
+  <main class="app-main">
+    <section class="hero-panel">
+      <div>
+        <p class="section-kicker">Dashboard</p>
+        <h2>围绕学生档案的日常管理工作台</h2>
+        <p class="hero-text">
+          当前总览已经覆盖筛选、分页、详情查看、状态管理和导出，适合班主任或教务助理做日常维护。
+        </p>
       </div>
-      <div class="col-md-2 d-grid">
-        <button class="btn btn-outline-primary" type="submit">查询</button>
+      <div class="hero-actions">
+        <a href="/students/new" class="btn btn-primary btn-lg">新增学生</a>
       </div>
-    </form>
+    </section>
 
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th>学号</th>
-                <th>姓名</th>
-                <th>性别</th>
-                <th>班级</th>
-                <th>电话</th>
-                <th>创建时间</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (students.length === 0) { %>
+    <section class="stats-grid">
+      <article class="metric-card">
+        <span class="metric-label">学生总数</span>
+        <strong class="metric-value"><%= stats.total %></strong>
+        <span class="metric-note">匹配当前筛选条件</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">班级数量</span>
+        <strong class="metric-value"><%= stats.classCount %></strong>
+        <span class="metric-note">当前结果中涉及的班级</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">男生人数</span>
+        <strong class="metric-value"><%= stats.genderSummary.male %></strong>
+        <span class="metric-note">性别统计</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">女生人数</span>
+        <strong class="metric-value"><%= stats.genderSummary.female %></strong>
+        <span class="metric-note">性别统计</span>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <div class="main-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Filter</p>
+              <h3>筛选与检索</h3>
+            </div>
+          </div>
+
+          <form class="row g-3" method="GET" action="/students">
+            <div class="col-lg-4">
+              <label class="form-label" for="keyword">关键词</label>
+              <input
+                id="keyword"
+                type="text"
+                name="keyword"
+                class="form-control"
+                placeholder="输入学号、姓名、班级、电话或邮箱"
+                value="<%= filters.keyword %>"
+              />
+            </div>
+            <div class="col-lg-2">
+              <label class="form-label" for="gender">性别</label>
+              <select id="gender" name="gender" class="form-select">
+                <option value="">全部</option>
+                <option value="男" <%= filters.gender === '男' ? 'selected' : '' %>>男</option>
+                <option value="女" <%= filters.gender === '女' ? 'selected' : '' %>>女</option>
+              </select>
+            </div>
+            <div class="col-lg-3">
+              <label class="form-label" for="class_name">班级</label>
+              <select id="class_name" name="class_name" class="form-select">
+                <option value="">全部班级</option>
+                <% classOptions.forEach(function(option) { %>
+                  <option value="<%= option %>" <%= filters.class_name === option ? 'selected' : '' %>><%= option %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="col-lg-3">
+              <label class="form-label" for="status">状态</label>
+              <select id="status" name="status" class="form-select">
+                <option value="">全部状态</option>
+                <option value="在读" <%= filters.status === '在读' ? 'selected' : '' %>>在读</option>
+                <option value="实习" <%= filters.status === '实习' ? 'selected' : '' %>>实习</option>
+                <option value="休学" <%= filters.status === '休学' ? 'selected' : '' %>>休学</option>
+              </select>
+            </div>
+            <div class="col-12 filter-actions">
+              <button class="btn btn-primary" type="submit">应用筛选</button>
+              <a class="btn btn-outline-secondary" href="/students">重置</a>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Students</p>
+              <h3>学生列表</h3>
+            </div>
+            <span class="table-count">共 <%= stats.total %> 条</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-modern align-middle">
+              <thead>
                 <tr>
-                  <td colspan="7" class="text-center text-muted">暂无数据</td>
+                  <th>学号</th>
+                  <th>姓名</th>
+                  <th>状态</th>
+                  <th>班级</th>
+                  <th>联系方式</th>
+                  <th>宿舍</th>
+                  <th>操作</th>
                 </tr>
-              <% } %>
+              </thead>
+              <tbody>
+                <% if (students.length === 0) { %>
+                  <tr>
+                    <td colspan="7" class="empty-state">当前没有符合条件的学生记录</td>
+                  </tr>
+                <% } %>
 
-              <% students.forEach(function(student) { %>
-                <tr>
-                  <td><%= student.student_no %></td>
-                  <td><%= student.name %></td>
-                  <td><%= student.gender %></td>
-                  <td><%= student.class_name %></td>
-                  <td><%= student.phone || '-' %></td>
-                  <td><%= student.created_at ? new Date(student.created_at).toLocaleString() : '-' %></td>
-                  <td>
-                    <div class="table-actions">
-                      <a class="btn btn-sm btn-outline-primary" href="/students/<%= student.id %>/edit">编辑</a>
-                      <form action="/students/<%= student.id %>/delete" method="POST" onsubmit="return confirm('确定删除该学生吗？');">
-                        <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
-        </div>
+                <% students.forEach(function(student) { %>
+                  <tr>
+                    <td><span class="student-no"><%= student.student_no %></span></td>
+                    <td>
+                      <div class="student-cell">
+                        <strong><%= student.name %></strong>
+                        <span><%= student.gender %> · <%= student.email || '未填邮箱' %></span>
+                      </div>
+                    </td>
+                    <td><span class="badge-soft"><%= student.status %></span></td>
+                    <td><%= student.class_name %></td>
+                    <td>
+                      <div class="student-cell compact">
+                        <strong><%= student.phone || '-' %></strong>
+                        <span><%= student.emergency_phone || '无紧急电话' %></span>
+                      </div>
+                    </td>
+                    <td><%= student.dormitory || '-' %></td>
+                    <td>
+                      <div class="table-actions">
+                        <a class="btn btn-sm btn-outline-primary" href="/students/<%= student.id %>">详情</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="/students/<%= student.id %>/edit">编辑</a>
+                        <form action="/students/<%= student.id %>/delete" method="POST" onsubmit="return confirm('确定删除该学生吗？');">
+                          <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if (pagination.totalPages > 1) { %>
+            <nav class="pagination-wrap" aria-label="学生列表分页">
+              <ul class="pagination mb-0">
+                <li class="page-item <%= pagination.hasPrev ? '' : 'disabled' %>">
+                  <a
+                    class="page-link"
+                    href="/students?keyword=<%= encodeURIComponent(filters.keyword) %>&gender=<%= encodeURIComponent(filters.gender) %>&class_name=<%= encodeURIComponent(filters.class_name) %>&status=<%= encodeURIComponent(filters.status) %>&page=<%= pagination.page - 1 %>"
+                  >
+                    上一页
+                  </a>
+                </li>
+                <% pagination.pages.forEach(function(item) { %>
+                  <li class="page-item <%= item === pagination.page ? 'active' : '' %>">
+                    <a
+                      class="page-link"
+                      href="/students?keyword=<%= encodeURIComponent(filters.keyword) %>&gender=<%= encodeURIComponent(filters.gender) %>&class_name=<%= encodeURIComponent(filters.class_name) %>&status=<%= encodeURIComponent(filters.status) %>&page=<%= item %>"
+                    >
+                      <%= item %>
+                    </a>
+                  </li>
+                <% }); %>
+                <li class="page-item <%= pagination.hasNext ? '' : 'disabled' %>">
+                  <a
+                    class="page-link"
+                    href="/students?keyword=<%= encodeURIComponent(filters.keyword) %>&gender=<%= encodeURIComponent(filters.gender) %>&class_name=<%= encodeURIComponent(filters.class_name) %>&status=<%= encodeURIComponent(filters.status) %>&page=<%= pagination.page + 1 %>"
+                  >
+                    下一页
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          <% } %>
+        </section>
       </div>
-    </div>
+
+      <aside class="side-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Status</p>
+              <h3>状态分布</h3>
+            </div>
+          </div>
+
+          <div class="class-list">
+            <% stats.statusStats.forEach(function(item) { %>
+              <div class="class-row">
+                <div>
+                  <strong><%= item.status %></strong>
+                  <span><%= item.total %> 人</span>
+                </div>
+                <div class="progress progress-thin">
+                  <div
+                    class="progress-bar"
+                    role="progressbar"
+                    style="width: <%= stats.total ? Math.max(Math.round((item.total / stats.total) * 100), 8) : 0 %>%"
+                  ></div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Classes</p>
+              <h3>重点班级</h3>
+            </div>
+          </div>
+
+          <div class="recent-list">
+            <% classList.forEach(function(item) { %>
+              <a href="/classes" class="recent-item">
+                <div>
+                  <strong><%= item.class_name %></strong>
+                  <span><%= item.counselor %> · <%= item.major %></span>
+                </div>
+                <small><%= item.student_count %>/<%= item.student_capacity %></small>
+              </a>
+            <% }); %>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Recent</p>
+              <h3>最近录入</h3>
+            </div>
+          </div>
+
+          <div class="recent-list">
+            <% recentStudents.forEach(function(student) { %>
+              <a href="/students/<%= student.id %>" class="recent-item">
+                <div>
+                  <strong><%= student.name %></strong>
+                  <span><%= student.class_name %></span>
+                </div>
+                <small><%= student.student_no %></small>
+              </a>
+            <% }); %>
+          </div>
+        </section>
+      </aside>
+    </section>
   </main>
+    </div>
+  </div>
 </body>
 </html>

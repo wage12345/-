@@ -4,7 +4,9 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 const dotenv = require('dotenv');
 const pool = require('./config/db');
+const { ensureSchema } = require('./config/schemaSync');
 const authRoutes = require('./routes/authRoutes');
+const classRoutes = require('./routes/classRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 
 dotenv.config();
@@ -53,11 +55,19 @@ app.get('/', (req, res) => {
 
 app.use(authRoutes);
 app.use(studentRoutes);
+app.use(classRoutes);
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-  });
+  ensureSchema()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Server is running at http://localhost:${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error('Failed to prepare database schema:', error.message);
+      process.exit(1);
+    });
 }
 
 module.exports = app;

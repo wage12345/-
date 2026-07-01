@@ -29,7 +29,7 @@ async function login(req, res) {
     };
 
     res.redirect('/students');
-  } catch (error) {
+  } catch (_error) {
     res.render('login', { error: '登录失败，请稍后重试' });
   }
 }

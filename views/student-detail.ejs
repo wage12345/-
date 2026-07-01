@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>学生详情 - 学生信息管理系统</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/css/style.css" rel="stylesheet" />
+</head>
+<body class="app-page">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      activePage: 'students',
+      user: user,
+      sidebarStats: typeof sidebarStats !== 'undefined' ? sidebarStats : null
+    }) %>
+
+    <div class="app-content">
+  <header class="subpage-topbar">
+    <div class="subpage-topbar-inner">
+      <div>
+        <p class="eyebrow mb-1">Student Hub</p>
+        <h1 class="page-title mb-0">学生详情</h1>
+      </div>
+      <div class="topbar-actions">
+        <a href="/students/<%= student.id %>/edit" class="btn btn-primary">编辑信息</a>
+        <a href="/students" class="btn btn-outline-light">返回列表</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="subpage-main">
+    <section class="detail-layout">
+      <article class="panel detail-hero">
+        <div class="detail-avatar"><%= student.name ? student.name.slice(0, 1) : '学' %></div>
+        <div class="detail-hero-text">
+          <p class="section-kicker">Profile</p>
+          <h2><%= student.name %></h2>
+          <p class="detail-subtitle"><%= student.class_name %> · <%= student.status %> · <%= student.gender %></p>
+          <div class="detail-actions">
+            <a href="/students/<%= student.id %>/edit" class="btn btn-primary">编辑</a>
+            <form action="/students/<%= student.id %>/delete" method="POST" onsubmit="return confirm('确定删除该学生吗？');">
+              <button class="btn btn-outline-danger" type="submit">删除</button>
+            </form>
+          </div>
+        </div>
+      </article>
+
+      <section class="detail-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Details</p>
+              <h3>档案信息</h3>
+            </div>
+          </div>
+
+          <dl class="detail-list">
+            <div><dt>学号</dt><dd><%= student.student_no %></dd></div>
+            <div><dt>姓名</dt><dd><%= student.name %></dd></div>
+            <div><dt>性别</dt><dd><%= student.gender %></dd></div>
+            <div><dt>班级</dt><dd><%= student.class_name %></dd></div>
+            <div><dt>状态</dt><dd><%= student.status %></dd></div>
+            <div><dt>联系电话</dt><dd><%= student.phone || '未填写' %></dd></div>
+            <div><dt>邮箱</dt><dd><%= student.email || '未填写' %></dd></div>
+            <div><dt>出生日期</dt><dd><%= student.birthday ? new Date(student.birthday).toLocaleDateString('zh-CN') : '未填写' %></dd></div>
+            <div><dt>宿舍</dt><dd><%= student.dormitory || '未填写' %></dd></div>
+            <div><dt>紧急联系人</dt><dd><%= student.emergency_contact || '未填写' %></dd></div>
+            <div><dt>紧急联系电话</dt><dd><%= student.emergency_phone || '未填写' %></dd></div>
+            <div><dt>录入时间</dt><dd><%= student.created_at ? new Date(student.created_at).toLocaleString('zh-CN') : '-' %></dd></div>
+          </dl>
+
+          <div class="notes-block">
+            <h4>备注</h4>
+            <p><%= student.notes || '暂无备注信息。' %></p>
+          </div>
+        </article>
+
+        <aside class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Class</p>
+              <h3>所属班级</h3>
+            </div>
+          </div>
+
+          <% if (relatedClass) { %>
+            <div class="quick-actions">
+              <div class="quick-card">
+                <strong><%= relatedClass.class_name %></strong>
+                <span><%= relatedClass.grade %> 级 · <%= relatedClass.major %></span>
+              </div>
+              <div class="quick-card">
+                <strong>辅导员</strong>
+                <span><%= relatedClass.counselor %></span>
+              </div>
+              <div class="quick-card">
+                <strong>当前人数</strong>
+                <span><%= relatedClass.student_count %> / <%= relatedClass.student_capacity %></span>
+              </div>
+            </div>
+          <% } %>
+
+          <div class="quick-actions">
+            <a href="/students/new" class="quick-link">继续新增学生</a>
+            <a href="/students?class_name=<%= encodeURIComponent(student.class_name) %>" class="quick-link">查看同班同学</a>
+            <a href="/classes" class="quick-link">进入班级面板</a>
+          </div>
+        </aside>
+      </section>
+    </section>
+  </main>
+    </div>
+  </div>
+</body>
+</html>

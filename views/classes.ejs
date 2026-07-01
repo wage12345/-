@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>班级面板 - 学生信息管理系统</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/css/style.css" rel="stylesheet" />
+</head>
+<body class="app-page">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      activePage: 'classes',
+      user: user,
+      sidebarStats: {
+        studentCount: summary.studentCount,
+        classCount: summary.classCount,
+        capacity: summary.capacity
+      }
+    }) %>
+
+    <div class="app-content">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <p class="eyebrow mb-1">Student Hub</p>
+        <h1 class="page-title mb-0">班级管理面板</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="hero-panel">
+      <div>
+        <p class="section-kicker">Classes</p>
+        <h2>面向班级运行维护的独立视图</h2>
+        <p class="hero-text">
+          在这里集中查看班级容量、辅导员、在读人数和满载率，也可以维护班级基础资料。
+        </p>
+      </div>
+      <div class="hero-actions">
+        <a href="/classes/new" class="btn btn-primary btn-lg">新增班级</a>
+      </div>
+    </section>
+
+    <% if (error) { %>
+      <div class="alert alert-warning" role="alert"><%= error %></div>
+    <% } %>
+
+    <section class="stats-grid">
+      <article class="metric-card">
+        <span class="metric-label">班级总数</span>
+        <strong class="metric-value"><%= summary.classCount %></strong>
+        <span class="metric-note">当前纳入系统的班级</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">学生总数</span>
+        <strong class="metric-value"><%= summary.studentCount %></strong>
+        <span class="metric-note">所有班级合计人数</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">总容量</span>
+        <strong class="metric-value"><%= summary.capacity %></strong>
+        <span class="metric-note">班级预设可容纳人数</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">平均满载率</span>
+        <strong class="metric-value"><%= summary.capacity ? Math.round((summary.studentCount / summary.capacity) * 100) : 0 %>%</strong>
+        <span class="metric-note">按当前录入人数估算</span>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <p class="section-kicker">Classes</p>
+          <h3>班级列表</h3>
+        </div>
+      </div>
+
+      <div class="class-board">
+        <% classes.forEach(function(item) { %>
+          <article class="class-card">
+            <div class="class-card-head">
+              <div>
+                <h4><%= item.class_name %></h4>
+                <p><%= item.grade %> 级 · <%= item.major %></p>
+              </div>
+              <span class="badge-soft"><%= item.student_count %> 人</span>
+            </div>
+            <dl class="class-meta">
+              <div><dt>辅导员</dt><dd><%= item.counselor %></dd></div>
+              <div><dt>班长</dt><dd><%= item.monitor_name || '未设置' %></dd></div>
+              <div><dt>在读人数</dt><dd><%= item.active_student_count || 0 %></dd></div>
+              <div><dt>班级容量</dt><dd><%= item.student_capacity %></dd></div>
+            </dl>
+            <div class="progress progress-thin">
+              <div
+                class="progress-bar"
+                role="progressbar"
+                style="width: <%= item.student_capacity ? Math.min(Math.round((item.student_count / item.student_capacity) * 100), 100) : 0 %>%"
+              ></div>
+            </div>
+            <div class="class-card-actions">
+              <a class="btn btn-sm btn-outline-primary" href="/students?class_name=<%= encodeURIComponent(item.class_name) %>">查看学生</a>
+              <a class="btn btn-sm btn-outline-secondary" href="/classes/<%= item.id %>/edit">编辑</a>
+              <form action="/classes/<%= item.id %>/delete" method="POST" onsubmit="return confirm('确定删除该班级吗？');">
+                <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
+              </form>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    </section>
+  </main>
+    </div>
+  </div>
+</body>
+</html>

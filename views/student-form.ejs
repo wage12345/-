@@ -7,77 +7,130 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="/css/style.css" rel="stylesheet" />
 </head>
-<body class="bg-light">
-  <main class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="mb-0"><%= mode === 'create' ? '新增学生' : '编辑学生' %></h4>
-      <a href="/students" class="btn btn-outline-secondary">返回列表</a>
-    </div>
+<body class="app-page">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      activePage: 'studentForm',
+      user: typeof user !== 'undefined' ? user : null,
+      sidebarStats: typeof sidebarStats !== 'undefined' ? sidebarStats : null
+    }) %>
 
-    <div class="card shadow-sm">
-      <div class="card-body">
+    <div class="app-content">
+  <header class="subpage-topbar">
+    <div class="subpage-topbar-inner">
+      <div>
+        <p class="eyebrow mb-1">Student Hub</p>
+        <h1 class="page-title mb-0"><%= mode === 'create' ? '新增学生' : '编辑学生' %></h1>
+      </div>
+      <a href="/students" class="btn btn-outline-light">返回列表</a>
+    </div>
+  </header>
+
+  <main class="subpage-main">
+    <section class="form-layout">
+      <article class="panel form-panel">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">Profile</p>
+            <h3>档案信息</h3>
+          </div>
+        </div>
+
         <% if (error) { %>
-          <div class="alert alert-danger"><%= error %></div>
+          <div class="alert alert-danger" role="alert"><%= error %></div>
         <% } %>
 
-        <form action="<%= formAction %>" method="POST">
-          <div class="mb-3">
-            <label class="form-label">学号</label>
-            <input
-              type="text"
-              name="student_no"
-              class="form-control"
-              value="<%= student.student_no || '' %>"
-              required
-            />
+        <form action="<%= formAction %>" method="POST" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label" for="student_no">学号</label>
+            <input id="student_no" type="text" name="student_no" class="form-control" value="<%= student.student_no || '' %>" required />
           </div>
-
-          <div class="mb-3">
-            <label class="form-label">姓名</label>
-            <input
-              type="text"
-              name="name"
-              class="form-control"
-              value="<%= student.name || '' %>"
-              required
-            />
+          <div class="col-md-4">
+            <label class="form-label" for="name">姓名</label>
+            <input id="name" type="text" name="name" class="form-control" value="<%= student.name || '' %>" required />
           </div>
-
-          <div class="mb-3">
-            <label class="form-label">性别</label>
-            <select name="gender" class="form-select">
+          <div class="col-md-4">
+            <label class="form-label" for="gender">性别</label>
+            <select id="gender" name="gender" class="form-select">
               <option value="男" <%= student.gender === '男' ? 'selected' : '' %>>男</option>
               <option value="女" <%= student.gender === '女' ? 'selected' : '' %>>女</option>
             </select>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">班级</label>
-            <input
-              type="text"
-              name="class_name"
-              class="form-control"
-              value="<%= student.class_name || '' %>"
-              required
-            />
+          <div class="col-md-6">
+            <label class="form-label" for="class_name">班级</label>
+            <select id="class_name" name="class_name" class="form-select" required>
+              <option value="">请选择班级</option>
+              <% classOptions.forEach(function(option) { %>
+                <option value="<%= option %>" <%= student.class_name === option ? 'selected' : '' %>><%= option %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="status">状态</label>
+            <select id="status" name="status" class="form-select">
+              <option value="在读" <%= student.status === '在读' ? 'selected' : '' %>>在读</option>
+              <option value="实习" <%= student.status === '实习' ? 'selected' : '' %>>实习</option>
+              <option value="休学" <%= student.status === '休学' ? 'selected' : '' %>>休学</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="birthday">出生日期</label>
+            <input id="birthday" type="date" name="birthday" class="form-control" value="<%= student.birthday ? new Date(student.birthday).toISOString().slice(0, 10) : '' %>" />
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">电话</label>
-            <input
-              type="text"
-              name="phone"
-              class="form-control"
-              value="<%= student.phone || '' %>"
-            />
+          <div class="col-md-4">
+            <label class="form-label" for="phone">联系电话</label>
+            <input id="phone" type="text" name="phone" class="form-control" value="<%= student.phone || '' %>" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="email">邮箱</label>
+            <input id="email" type="email" name="email" class="form-control" value="<%= student.email || '' %>" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="dormitory">宿舍</label>
+            <input id="dormitory" type="text" name="dormitory" class="form-control" value="<%= student.dormitory || '' %>" />
           </div>
 
-          <button type="submit" class="btn btn-primary">
-            <%= mode === 'create' ? '保存' : '更新' %>
-          </button>
+          <div class="col-md-6">
+            <label class="form-label" for="emergency_contact">紧急联系人</label>
+            <input id="emergency_contact" type="text" name="emergency_contact" class="form-control" value="<%= student.emergency_contact || '' %>" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="emergency_phone">紧急联系电话</label>
+            <input id="emergency_phone" type="text" name="emergency_phone" class="form-control" value="<%= student.emergency_phone || '' %>" />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="notes">备注</label>
+            <textarea id="notes" name="notes" class="form-control" rows="4"><%= student.notes || '' %></textarea>
+          </div>
+
+          <div class="col-12 form-actions">
+            <button type="submit" class="btn btn-primary"><%= mode === 'create' ? '保存学生信息' : '更新学生信息' %></button>
+            <a href="/students" class="btn btn-outline-secondary">取消</a>
+          </div>
         </form>
-      </div>
-    </div>
+      </article>
+
+      <aside class="panel helper-panel">
+        <div class="panel-header">
+          <div>
+            <p class="section-kicker">Guide</p>
+            <h3>录入建议</h3>
+          </div>
+        </div>
+
+        <ul class="helper-list">
+          <li>学生状态建议保持统一枚举，方便统计和后续导出。</li>
+          <li>宿舍、紧急联系人和电话建议在开学初统一补录。</li>
+          <li>如果学生已转入实习或休学，优先更新状态字段。</li>
+          <li>班级列表来源于班级面板，新增班级后可直接在此选择。</li>
+        </ul>
+      </aside>
+    </section>
   </main>
+    </div>
+  </div>
 </body>
 </html>

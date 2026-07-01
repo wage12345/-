@@ -1,0 +1,69 @@
+<aside class="app-sidebar" aria-label="系统侧边栏">
+  <div class="sidebar-brand">
+    <span class="brand-mark">S</span>
+    <div>
+      <strong>Student Hub</strong>
+      <span>学生信息管理系统</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav" aria-label="主要模块">
+    <a class="sidebar-link <%= activePage === 'students' ? 'active' : '' %>" href="/students">
+      <span class="sidebar-icon">总</span>
+      <span>学生总览</span>
+    </a>
+    <a class="sidebar-link <%= activePage === 'classes' ? 'active' : '' %>" href="/classes">
+      <span class="sidebar-icon">班</span>
+      <span>班级管理</span>
+    </a>
+    <a class="sidebar-link <%= activePage === 'studentForm' ? 'active' : '' %>" href="/students/new">
+      <span class="sidebar-icon">加</span>
+      <span>新增学生</span>
+    </a>
+    <a class="sidebar-link <%= activePage === 'classForm' ? 'active' : '' %>" href="/classes/new">
+      <span class="sidebar-icon">建</span>
+      <span>新增班级</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-section">
+    <p class="sidebar-heading">常用功能</p>
+    <a class="sidebar-pill" href="/students/export">导出学生 CSV</a>
+    <a class="sidebar-pill" href="/students?status=在读">在读学生</a>
+    <a class="sidebar-pill" href="/students?status=实习">实习学生</a>
+    <a class="sidebar-pill" href="/students?status=休学">休学学生</a>
+  </div>
+
+  <% if (typeof sidebarStats !== 'undefined' && sidebarStats) { %>
+    <div class="sidebar-section sidebar-summary">
+      <p class="sidebar-heading">数据概览</p>
+      <div>
+        <span>学生</span>
+        <strong><%= sidebarStats.studentCount || 0 %></strong>
+      </div>
+      <div>
+        <span>班级</span>
+        <strong><%= sidebarStats.classCount || 0 %></strong>
+      </div>
+      <div>
+        <span>容量</span>
+        <strong><%= sidebarStats.capacity || 0 %></strong>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="sidebar-section sidebar-note">
+    <p class="sidebar-heading">工作提醒</p>
+    <p>优先补齐电话、宿舍和紧急联系人，后续导出和日常联系会更顺手。</p>
+  </div>
+
+  <% if (typeof user !== 'undefined' && user) { %>
+    <div class="sidebar-user">
+      <span>当前用户</span>
+      <strong><%= user.username %></strong>
+      <form action="/logout" method="POST">
+        <button type="submit">退出登录</button>
+      </form>
+    </div>
+  <% } %>
+</aside>

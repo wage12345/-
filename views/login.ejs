@@ -7,31 +7,70 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="/css/style.css" rel="stylesheet" />
 </head>
-<body class="bg-light">
-  <div class="container min-vh-100 d-flex align-items-center justify-content-center">
-    <div class="card shadow-sm login-card">
-      <div class="card-body p-4">
-        <h3 class="text-center mb-4">学生信息管理系统</h3>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-copy">
+      <p class="eyebrow">Student Hub</p>
+      <h1>学生信息管理系统</h1>
+      <p class="auth-text">
+        面向日常教务协同的轻量后台，集中维护学生档案、班级运行情况和筛选导出任务。
+      </p>
+      <div class="auth-points">
+        <div>
+          <strong>学生档案</strong>
+          <span>支持基础资料、状态、宿舍和紧急联系人维护</span>
+        </div>
+        <div>
+          <strong>班级面板</strong>
+          <span>按班级查看容量、辅导员和在读人数</span>
+        </div>
+        <div>
+          <strong>数据导出</strong>
+          <span>按筛选条件快速导出当前结果，便于留档</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-card-wrap">
+      <div class="auth-card">
+        <div class="auth-card-header">
+          <h2>账号登录</h2>
+          <p>使用管理员账号进入后台</p>
+        </div>
 
         <% if (error) { %>
-          <div class="alert alert-danger"><%= error %></div>
+          <div class="alert alert-danger" role="alert"><%= error %></div>
         <% } %>
 
-        <form action="/login" method="POST">
-          <div class="mb-3">
-            <label class="form-label">用户名</label>
-            <input type="text" name="username" class="form-control" placeholder="请输入用户名" required />
+        <form action="/login" method="POST" class="auth-form">
+          <div>
+            <label class="form-label" for="username">用户名</label>
+            <input
+              id="username"
+              type="text"
+              name="username"
+              class="form-control form-control-lg"
+              placeholder="请输入用户名"
+              required
+            />
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">密码</label>
-            <input type="password" name="password" class="form-control" placeholder="请输入密码" required />
+          <div>
+            <label class="form-label" for="password">密码</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              class="form-control form-control-lg"
+              placeholder="请输入密码"
+              required
+            />
           </div>
 
-          <button type="submit" class="btn btn-primary w-100">登录</button>
+          <button type="submit" class="btn btn-primary btn-lg w-100">登录</button>
         </form>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </body>
 </html>

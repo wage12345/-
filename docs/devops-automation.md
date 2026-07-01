@@ -36,7 +36,7 @@
 
 - 登录 GitHub Container Registry
 - 构建 Docker 镜像
-- 推送镜像到 `ghcr.io/<owner>/<repo>`
+- 推送镜像到 `ghcr.io/<owner>/student-management-system`
 
 这样可以形成“提交 -> 校验 -> 发布镜像”的持续交付链路。
 
